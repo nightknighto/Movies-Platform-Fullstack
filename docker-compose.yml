@@ -1,0 +1,45 @@
+services:
+  frontend:
+    image: movies_platform/frontend:dev
+    pull_policy: build
+    build:
+      args:
+        - TARGET_APP=frontend
+      target: frontend-dev
+    ports:
+      - "3000:3000"
+
+  backend:
+    image: movies_platform/backend:dev
+    pull_policy: build
+    build:
+      args:
+        - TARGET_APP=backend
+      target: backend-dev
+    environment:
+      - DATABASE_URL=mysql://root:mysql@database:3306/movies_platform
+      - NODE_ENV=development
+      - PORT=3001
+    ports:
+      - "3001:3001"
+      - "5555:5555" # Prisma Studio port
+    post_start:
+      - command: npm run prisma:studio -w backend
+    depends_on:
+      database:
+        condition: service_healthy
+
+  database:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_DATABASE: movies_platform
+      MYSQL_USER: mysql
+      MYSQL_PASSWORD: mysql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

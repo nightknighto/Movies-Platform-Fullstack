@@ -1,8 +1,30 @@
 import { Trash2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose, Dialog } from "./ui/dialog";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteMovie } from "@/lib/api";
+import type { Movie } from "@/types";
 
-export default function DeleteButton() {
+type DeleteButtonProps = Pick<Movie, 'id'>;
+
+export default function DeleteButton({ id }: DeleteButtonProps) {
+
+    const queryClient = useQueryClient();
+
+    const mutation = useMutation({
+        mutationFn: deleteMovie,
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ['movies']
+            });
+        }
+    })
+
+    function handleClick() {
+        mutation.mutate(id);
+    }
+
+
     return (
         <Dialog>
             <DialogTrigger asChild>
@@ -22,7 +44,7 @@ export default function DeleteButton() {
                             Cancel
                         </Button>
                     </DialogClose>
-                    <Button type="button" variant="destructive">
+                    <Button type="button" variant="destructive" onClick={handleClick}>
                         Delete
                     </Button>
                 </DialogFooter>

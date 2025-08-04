@@ -1,5 +1,5 @@
 {
-  "name": "Movies-Platform-Fullstack",
+  "name": "MovieVault",
   "private": true,
   "scripts": {
     "build": "turbo run build",

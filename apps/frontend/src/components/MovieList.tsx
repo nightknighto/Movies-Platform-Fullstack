@@ -1,24 +1,24 @@
-import { Table, TableBody, TableCaption, TableHead, TableHeader, TableRow } from "./ui/table";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "./ui/table";
 import MovieEntry from "./MovieEntry";
-import { Card, CardHeader, CardTitle, CardDescription, CardAction, CardContent, CardFooter } from "./ui/card";
-import { Button } from "./ui/button";
-import { Calendar, Clock, DollarSign, Film, MapPin, SquarePen, Star, Trash2, User } from "lucide-react";
-import { Badge } from "./ui/badge";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import type { Movie } from "@/types";
 
-export default function MovieList() {
+type MovieListProps = {
+    movies: Movie[]
+}
+
+
+export default function MovieList({ movies }: MovieListProps) {
+    // Use media query to determine screen size
 
     const isMediumScreen = useMediaQuery("(max-width: 768px)");
 
     if (isMediumScreen) {
         return (
             <div className="flex flex-col gap-4">
-                <MovieEntry />
-                <MovieEntry />
-                <MovieEntry />
-                <MovieEntry />
-                <MovieEntry />
-                <p className="text-center text-gray-500">Loading more entries...</p>
+                {movies.map(movie => (
+                    <MovieEntry key={movie.id} {...movie} />
+                ))}
             </div>
         )
     }
@@ -28,7 +28,6 @@ export default function MovieList() {
         <>
             <div className="border rounded-md">
                 <Table>
-                    <TableCaption className="pb-4">Loading more entries...</TableCaption>
                     <TableHeader>
                         <TableRow>
                             <TableHead>Type</TableHead>
@@ -45,11 +44,9 @@ export default function MovieList() {
                     </TableHeader>
 
                     <TableBody>
-                        <MovieEntry />
-                        <MovieEntry />
-                        <MovieEntry />
-                        <MovieEntry />
-                        <MovieEntry />
+                        {movies.map(movie => (
+                            <MovieEntry key={movie.id} {...movie} />
+                        ))}
                     </TableBody>
                 </Table>
             </div>
