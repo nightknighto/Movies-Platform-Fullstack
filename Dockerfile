@@ -4,7 +4,6 @@
 FROM node:22.11.0-alpine AS base
 
 # TARGET_APP decides which app to build dynamically.
-# It would be set to either frontend, backend, or platform.
 ARG TARGET_APP
 ENV TARGET_APP=${TARGET_APP}
 
@@ -16,11 +15,10 @@ COPY package*.json ./
 COPY turbo.json ./
 
 # Copy the shared packages' package.json file
-COPY packages/shared/package*.json ./packages/shared/
-
+COPY packages/dtos/package*.json ./packages/dtos/
 
 # Copy the chosen app's package.json file
-COPY packages/${TARGET_APP}/package*.json ./packages/${TARGET_APP}/
+COPY apps/${TARGET_APP}/package*.json ./apps/${TARGET_APP}/
 
 
 # --------------------------------------------
@@ -33,13 +31,13 @@ FROM base AS base-dev
 RUN --mount=type=cache,target=/root/.npm npm install --force
 
 # Copy the shared packages
-COPY packages/shared ./packages/shared
+COPY packages/dtos ./packages/dtos
 
 # Copy the chosen app
-COPY packages/${TARGET_APP} ./packages/${TARGET_APP}
+COPY apps/${TARGET_APP} ./apps/${TARGET_APP}
 
-# Build the shared packages
-RUN npm run build -w ./packages/shared
+# Build the dtos packages
+RUN npm run build -w ./packages/dtos
 
 ENV NODE_ENV=development
 
@@ -51,9 +49,6 @@ CMD ["sh", "-c", "npm run dev:docker"]
 # Make a copy of the base stage and continue building on top of it.
 FROM base-dev AS frontend-dev
 
-# Build the frontend app
-RUN npm run build -w ./packages/${TARGET_APP}
-
 EXPOSE 5173
 
 # --------------------------------------------
@@ -62,9 +57,8 @@ EXPOSE 5173
 FROM base-dev AS backend-dev
 
 # Generate Prisma client
-RUN cd ./packages/backend && npx prisma generate
+RUN npm run prisma:generate -w ./apps/backend
 
-# Build the backend app
-RUN npm run build -w ./packages/backend
+RUN echo "DATABASE_URL=mysql://root:mysql@database:3306/movies_platform" > ./apps/backend/.env
 
 EXPOSE 3000

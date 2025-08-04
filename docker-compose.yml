@@ -6,8 +6,10 @@ services:
       args:
         - TARGET_APP=frontend
       target: frontend-dev
+    depends_on:
+      - backend
     ports:
-      - "3000:3000"
+      - "5173:5173"
 
   backend:
     image: movies_platform/backend:dev
@@ -19,15 +21,12 @@ services:
     environment:
       - DATABASE_URL=mysql://root:mysql@database:3306/movies_platform
       - NODE_ENV=development
-      - PORT=3001
     ports:
-      - "3001:3001"
-      - "5555:5555" # Prisma Studio port
-    post_start:
-      - command: npm run prisma:studio -w backend
+      - "3000:3000"
     depends_on:
       database:
         condition: service_healthy
+    command: "sh -c 'npm run prisma:push -w backend && npm run seed -w backend && npm run dev:docker'"
 
   database:
     image: mysql:8
