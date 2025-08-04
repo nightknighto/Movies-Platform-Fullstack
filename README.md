@@ -12,6 +12,8 @@ A full-stack movie platform built with modern technologies, featuring a React fr
 ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)
 
+![screenshot](./docs/screenshot.png)
+
 ## Table of Contents
 - [Architecture Overview](#architecture-overview)
 - [Project Structure](#project-structure)
@@ -149,20 +151,19 @@ export const GetMoviesDTOSchema = z.object({
     pageSize: z.number().int().min(1)
 })
 
-export const CreateMovieDTOSchema = BaseMovieSchema.omit({ id: true });
-export const UpdateMovieDTOSchema = CreateMovieDTOSchema;
+...
 
 // Export TypeScript types
 export type GetMoviesDTO = z.infer<typeof GetMoviesDTOSchema>;
-export type CreateMovieDTO = z.infer<typeof CreateMovieDTOSchema>;
-export type UpdateMovieDTO = z.infer<typeof UpdateMovieDTOSchema>;
+
+...
 ```
 
 ### How DTOs Are Used
 
 **In the Backend:**
 ```typescript
-// Schemas used in validation middlewares
+// Schemas used inside validation middlewares on routes
 moviesRouter.post('/', Validators.validateBody(CreateMovieDTOSchema), MoviesController.createMovie);
 
 moviesRouter.put('/:id', Validators.validateBody(UpdateMovieDTOSchema), MoviesController.updateMovie);
@@ -172,6 +173,7 @@ moviesRouter.put('/:id', Validators.validateBody(UpdateMovieDTOSchema), MoviesCo
 **In the Frontend:**
 ```typescript
 // apps/frontend/src/lib/api.ts
+// Ensures type-safe API calls
 import type { CreateMovieDTO, GetMoviesDTO, UpdateMovieDTO } from "@movievault/dtos";
 
 export async function createMovie(movieData: CreateMovieDTO) {
@@ -196,7 +198,7 @@ export async function createMovie(movieData: CreateMovieDTO) {
 
 ### Prerequisites
 
-- **Node.js** 18+ (Unless you are using Docker)
+- **Node.js** 18+ (Unless you use Docker)
 - **Docker** and **Docker Compose**
 - **Git**
 
@@ -210,7 +212,7 @@ export async function createMovie(movieData: CreateMovieDTO) {
 
 2. **Start the development environment**
    ```bash
-   docker-compose up
+   docker compose up
    ```
 
    This will:
